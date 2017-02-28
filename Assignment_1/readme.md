@@ -2,7 +2,6 @@ CS6350
 Big data Management Analytics and Management
 Spring 2017
 Homework 1   
-Submission Deadline: 19th February, 2017 (by 11.55 p.m.)
 
 In this homework, you will learn how to solve problems using Map Reduce. Please apply
 
