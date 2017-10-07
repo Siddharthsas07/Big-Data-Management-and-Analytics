@@ -1,0 +1,15 @@
+val buz	= sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2d/input/business.csv");
+
+val rev	= sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2b/input/review.csv");
+
+val filteredRev	= rev.map(line=>line.split("::"))
+					 .map(line=>(line(2),line));
+
+val filteredBuz = buz.filter(line=>line.contains("Stanford, CA"))
+					 .map(line=>line.split("::"))
+					 .map(line=>(line(0),line(0)));
+					 
+val joinedTable	= filteredBuz.join(filteredRev).values.values
+				  .map(line =>(line(1), line(3)));
+				  
+joinedTable.saveAsTextFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2d/output1");
