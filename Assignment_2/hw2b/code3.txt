@@ -1,0 +1,9 @@
+val input = sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2b/input/que3.txt");
+
+val output = input.map(line =>line.split(" "))
+				  .map(line =>(line(1), line(2)))
+				  .mapValues(_.toInt)
+				  .reduceByKey(_+_)
+				  .sortByKey();	
+
+output.coalesce(1).saveAsTextFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2b/output3");

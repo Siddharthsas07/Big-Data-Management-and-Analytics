@@ -1,0 +1,27 @@
+val buz = sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2b/input/business.csv");
+
+val rev	= sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2b/input/review.csv");
+
+val filteredBuz = buz.map(line=>line.split("::"))
+					 .map(line=>(line(0),line(1),line(2)))
+					 .toDF("bid","add","cat").distinct;
+
+val filteredRev = rev.map(line=>line.split("::"))
+					 .map(line=>(line(2),line(3)))
+					 .mapValues(_.toDouble)
+					 .mapValues(x=>(x,1.0))
+					 .reduceByKey((x,y)=>(x._1+y._1,x._2+y._2))
+					 .mapValues((x)=>x._1/x._2)
+					 .map(x=>x.swap)
+					 .sortByKey(false)
+					 .map(x=>x.swap)
+					 .toDF("id","review")
+					 .limit(10);
+
+val joinedTable  = filteredBuz.join(filteredRev,filteredBuz("bid")<=>filteredRev("id"))
+							  .drop("id");
+								
+joinedTable.rdd.coalesce(1)
+		   .saveAsTextFile("hdfs://quickstart.cloudera:8020/user/cloudera/hw2d/output2");
+
+
