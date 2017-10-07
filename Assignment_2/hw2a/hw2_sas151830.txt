@@ -1,0 +1,56 @@
+-- Query 1
+
+A0 = load '/sas151830/input/business.csv' as line;
+A = foreach A0 generate flatten((tuple(chararray,chararray,chararray))REGEX_EXTRACT_ALL(line,'(.*)\\:\\:(.*)\\:\\:(.*)')) AS (b_id, addr, cat);
+B = filter A by (addr matches '.*Palo Alto, CA.*');
+C0 = load '/sas151830/input/review.csv' as line2;
+C = foreach C0 generate flatten((tuple(chararray,chararray,chararray,float))REGEX_EXTRACT_ALL(line2,'(.*)\\:\\:(.*)\\:\\:(.*)\\:\\:(.*)')) AS (review_id, user_id, b_id, rating);
+D = group C by b_id;
+E = foreach D generate group as b_id, AVG(C.rating) as avg_rating;
+F = join B by b_id, E by b_id;
+G = distinct(foreach F generate B::b_id, addr, cat, avg_rating);
+H = order G by avg_rating desc;
+I = limit H 10;
+
+
+-- Query 2
+
+A0 = load '/sas151830/input/business.csv' as line;
+A = foreach A0 generate flatten((tuple(chararray,chararray,chararray))REGEX_EXTRACT_ALL(line,'(.*)\\:\\:(.*)\\:\\:(.*)')) AS (b_id, addr, cat);
+B0 = filter A by not(addr matches '.*Palo Alto, CA.*');
+B = filter B0 by (addr matches '.*, CA.*');
+C0 = load '/sas151830/input/review.csv' as line2;
+C = foreach C0 generate flatten((tuple(chararray,chararray,chararray,float))REGEX_EXTRACT_ALL(line2,'(.*)\\:\\:(.*)\\:\\:(.*)\\:\\:(.*)')) AS (review_id, user_id, b_id, rating);
+D = group C by b_id;
+E = foreach D generate group as b_id, AVG(C.rating) as avg_rating;
+F = join B by b_id, E by b_id;
+G = distinct(foreach F generate B::b_id, addr, cat, avg_rating);
+H = order G by avg_rating desc;
+I = limit H 10;
+
+
+-- Query 3
+
+A0 = load '/sas151830/input/business.csv' as line; 
+A = foreach A0 generate flatten((tuple(chararray,chararray,chararray))REGEX_EXTRACT_ALL(line,'(.*)\\:\\:(.*)\\:\\:(.*)')) AS (b_id, addr, cat);
+B0 = load '/sas151830/input/review.csv' as line2; 
+B = foreach B0 generate flatten((tuple(chararray,chararray,chararray,float))REGEX_EXTRACT_ALL(line2,'(.*)\\:\\:(.*)\\:\\:(.*)\\:\\:(.*)')) AS (review_id, user_id, b_id, rating);
+C = cogroup A by b_id, B by b_id;
+D = limit C 5;
+
+
+-- Query 4
+
+A0 = load '/sas151830/input/business.csv' as line; 
+A = foreach A0 generate flatten((tuple(chararray,chararray,chararray))REGEX_EXTRACT_ALL(line,'(.*)\\:\\:(.*)\\:\\:(.*)')) AS (b_id, addr, cat);
+B = filter A by(addr matches '.*Stanford, CA.*');
+C0 = load '/sas151830/input/review.csv' as line2;
+C = foreach C0 generate flatten((tuple(chararray,chararray,chararray,float))REGEX_EXTRACT_ALL(line2,'(.*)\\:\\:(.*)\\:\\:(.*)\\:\\:(.*)')) AS (review_id, user_id, b_id, rating);
+D = join B by b_id, C by b_id;
+E = distinct(foreach D generate user_id, rating);
+F = limit E 10; 
+
+
+
+
+
